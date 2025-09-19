@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: rbt-ticket-booking-test
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: rbt
+    open-in-view: false
+    show-sql: false
+  flyway:
+    enabled: false
+
+server:
+  port: 0
+
+logging:
+  level:
+    root: WARN
+    com.razal.rbtticketbooking: INFO
+    org.springframework.web: WARN
+    org.hibernate.SQL: WARN
+
+app:
+  jwt:
+    secret: test-secret-key-for-testing-purposes-only-not-production-use
+    issuer: rbt-ticket-booking-test
+    expiration-min: 5
+  dummy-json:
+    base-url: https://dummyjson.com
+  admin-users:
+    - testadmin
+    - emilys
