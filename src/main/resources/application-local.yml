@@ -49,3 +49,15 @@ springdoc:
     path: /docs
   api-docs:
     path: /v3/api-docs
+
+app:
+  jwt:
+    secret: UQv2bDg0Y2rX7oQe5fV9hJ3kLmNz1Pa4Rb8Sc6Td0UvWxYz2A3B5C7D9E1F3G5H7
+    issuer: rbt-ticket-booking
+    expiration-min: 60
+  dummy-json:
+    base-url: https://dummyjson.com
+  admin-users:
+    - emilys
+    - admin
+    - alice
