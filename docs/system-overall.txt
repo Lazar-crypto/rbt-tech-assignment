@@ -1,0 +1,40 @@
+Overall description of the system (from a certain abstract point of view)
+    providing specifications and requirements.
+
+
+Functional requirements:
+    - Publish an event:
+        - Create new Event
+        - Validate
+    - Book tickets
+    - View an event
+    - Search for events - public api
+
+Non-functional requirements:
+    - maybe later
+
+Core entities:
+    - Event (id, venueId, performerId, tickets[], total_tickets, max_per_request, name, description, status(PUBLISHED,CLOSED))
+    - Venue (id, name, address, capacity, seatMap)
+    - Performer (id, ...)
+    - Ticket (id, eventId, userId, seat, price, status(available, booked, expired))
+
+APIs:
+    - Publish an event
+    - View an event(public api):
+        - GET /event/:eventId -> Event & Venue & Performer & Ticket[]
+    - Search for an event(public api):
+        - GET /search?term={term}&type={type}&location={location}&date={date} -> Partial<Event>(name, date, remainingTickets, maxPerEvent)
+    - Book a ticket:
+        - POST /booking/reserve -> 200 (ticket.status=reserved)
+          header: JWT
+          body:{
+            ticketIds[],
+          }
+        - POST /booking/finalize -> 200 (ticket.status=booked)
+          header: JWT
+          body:{
+            ticketIds[]
+            paymentDetails(third party payment service)
+            confirmed: boolean
+          }
