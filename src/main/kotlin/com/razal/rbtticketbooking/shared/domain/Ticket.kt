@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import java.math.BigDecimal
 import java.time.OffsetDateTime
@@ -18,7 +19,12 @@ import java.time.OffsetDateTime
 @Table(name = "ticket", schema = "rbt")
 class Ticket(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ticket_seq_gen")
+    @SequenceGenerator(
+        name = "ticket_seq_gen",
+        sequenceName = "ticket_seq",
+        allocationSize = 100
+    )
     @Column(name = "id")
     var id: Long? = null,
 

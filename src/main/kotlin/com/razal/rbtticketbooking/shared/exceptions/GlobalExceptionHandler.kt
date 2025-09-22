@@ -6,10 +6,13 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
+import org.springframework.security.authorization.AuthorizationDeniedException
+import org.springframework.security.core.AuthenticationException
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.context.request.WebRequest
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler
 import java.time.LocalDateTime
@@ -44,6 +47,54 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body)
     }
 
+    @ExceptionHandler(AuthorizationDeniedException::class)
+    fun handleAuthorizationDenied(ex: AuthorizationDeniedException, webRequest: WebRequest): ResponseEntity<ErrorResponseDto> {
+        val body = ErrorResponseDto(
+            path = webRequest.getDescription(false),
+            status = HttpStatus.FORBIDDEN,
+            message = "Access Denied",
+            timestamp = LocalDateTime.now()
+        )
+        RBT_LOGGER.warn("authorization denied path={} msg={}", webRequest.getDescription(false), ex.message)
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(body)
+    }
+
+    @ExceptionHandler(AuthenticationException::class)
+    fun handleAuthenticationException(ex: AuthenticationException, webRequest: WebRequest): ResponseEntity<ErrorResponseDto> {
+        val body = ErrorResponseDto(
+            path = webRequest.getDescription(false),
+            status = HttpStatus.UNAUTHORIZED,
+            message = "Authentication required",
+            timestamp = LocalDateTime.now()
+        )
+        RBT_LOGGER.warn("authentication failed path={} msg={}", webRequest.getDescription(false), ex.message)
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body)
+    }
+
+    @ExceptionHandler(HttpClientErrorException::class)
+    fun handleHttpClientErrorException(ex: HttpClientErrorException, webRequest: WebRequest): ResponseEntity<ErrorResponseDto> {
+        val body = ErrorResponseDto(
+            path = webRequest.getDescription(false),
+            status = HttpStatus.BAD_REQUEST,
+            message = ex.responseBodyAsString.takeIf { it.isNotBlank() } ?: ex.message ?: "External API error",
+            timestamp = LocalDateTime.now()
+        )
+        RBT_LOGGER.warn("external API error path={} status={} msg={}", webRequest.getDescription(false), ex.statusCode, ex.message)
+        return ResponseEntity.status(ex.statusCode).body(body)
+    }
+
+    @ExceptionHandler(IllegalArgumentException::class)
+    fun handleIllegalArgumentException(ex: IllegalArgumentException, webRequest: WebRequest): ResponseEntity<ErrorResponseDto> {
+        val body = ErrorResponseDto(
+            path = webRequest.getDescription(false),
+            status = HttpStatus.BAD_REQUEST,
+            message = ex.message ?: "Invalid request parameters",
+            timestamp = LocalDateTime.now()
+        )
+        RBT_LOGGER.warn("validation error path={} msg={}", webRequest.getDescription(false), ex.message)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body)
+    }
+
     @ExceptionHandler(DummyJsonException::class)
     fun handleDummyJsonLoginException(ex: DummyJsonException, webRequest: WebRequest): ResponseEntity<ErrorResponseDto> {
         val body = ErrorResponseDto(
@@ -52,7 +103,7 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
             message = ex.message,
             timestamp = LocalDateTime.now()
         )
-        RBT_LOGGER.info("dummy json login error path={} msg={}", webRequest.getDescription(false), ex.message)
+        RBT_LOGGER.warn("dummy json login error path={} msg={}", webRequest.getDescription(false), ex.message)
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body)
     }
 
@@ -64,7 +115,7 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
             message = ex.message,
             timestamp = LocalDateTime.now()
         )
-        RBT_LOGGER.info("already exists path={} msg={}", webRequest.getDescription(false), ex.message)
+        RBT_LOGGER.warn("already exists path={} msg={}", webRequest.getDescription(false), ex.message)
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body)
     }
 
@@ -76,7 +127,7 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
             message = ex.message,
             timestamp = LocalDateTime.now()
         )
-        RBT_LOGGER.info("not found path={} msg={}", webRequest.getDescription(false), ex.message)
+        RBT_LOGGER.warn("not found path={} msg={}", webRequest.getDescription(false), ex.message)
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body)
     }
 

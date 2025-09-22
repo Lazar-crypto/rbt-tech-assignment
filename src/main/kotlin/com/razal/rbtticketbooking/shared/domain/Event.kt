@@ -26,8 +26,8 @@ class Event(
     var venue: Venue,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "performer_id")
-    var performer: Performer? = null,
+    @JoinColumn(name = "performer_id", nullable = false)
+    var performer: Performer,
 
     @Column(name = "name", nullable = false)
     var name: String,
