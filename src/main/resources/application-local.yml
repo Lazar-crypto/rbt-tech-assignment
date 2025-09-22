@@ -24,6 +24,9 @@ spring:
     baseline-on-migrate: true
     schemas: rbt
     default-schema: rbt
+  threads:
+    virtual:
+      enabled: true
 
 server:
   port: 8080
