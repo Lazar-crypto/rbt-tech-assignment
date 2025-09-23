@@ -28,4 +28,13 @@ class EventController(private val eventService: EventService) {
                 msg = "Event created and published successfully")
         )
 
+    @GetMapping("/public/events")
+    fun getAllEvents(
+        @RequestParam(defaultValue = "0") page: Int,
+        @RequestParam(defaultValue = "5") size: Int,
+        @RequestParam(defaultValue = "startTime,asc") sort: String
+    ) = ResponseEntity.ok(
+        ResponseDto(data = eventService.getAllEvents(page, size, sort))
+        )
+
 }

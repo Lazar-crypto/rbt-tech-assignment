@@ -2,6 +2,8 @@ package com.razal.rbtticketbooking.event.repository
 
 import com.razal.rbtticketbooking.shared.domain.Event
 import com.razal.rbtticketbooking.shared.domain.EventStatus
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
@@ -21,4 +23,6 @@ interface EventRepo: JpaRepository<Event, Long>{
         @Param("published") published: EventStatus = EventStatus.PUBLISHED,
         @Param("closed") closed: EventStatus = EventStatus.CLOSED
     ): Int
+
+    fun findByStatus(status: EventStatus, page: Pageable): Page<Event>
 }

@@ -12,9 +12,12 @@ import com.razal.rbtticketbooking.shared.domain.EventStatus
 import com.razal.rbtticketbooking.shared.domain.Ticket
 import com.razal.rbtticketbooking.shared.domain.TicketStatus
 import com.razal.rbtticketbooking.shared.exceptions.ResourceNotFoundException
+import com.razal.rbtticketbooking.shared.service.TicketHoldService
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.math.BigDecimal
@@ -25,8 +28,9 @@ class EventServiceImpl(
     private val eventRepo: EventRepo,
     private val venueRepo: VenueRepo,
     private val performerRepo: PerformerRepo,
+    private val ticketHoldService: TicketHoldService,
     @param:Value("\${spring.jpa.properties.hibernate.jdbc.batch_size}") private val batchSize: Int,
-    @PersistenceContext private val entityManager: EntityManager
+    @PersistenceContext private val entityManager: EntityManager,
     ): EventService {
 
     @Transactional
@@ -62,11 +66,34 @@ class EventServiceImpl(
         return event.id!!
     }
 
+    @Transactional(readOnly = true)
     override fun getAllEvents(
         page: Int,
         size: Int,
         sort: String
     ): List<GetEventResponse> {
-        TODO("Not yet implemented")
+        val sortTokens = sort.split(",")
+        val sortProp = sortTokens.getOrNull(0) ?: "startTime"
+        val sortDir = when (sortTokens.getOrNull(1)?.lowercase()) {
+            "desc" -> Sort.Direction.DESC
+            else   -> Sort.Direction.ASC
+        }
+        val page = PageRequest.of(
+            page,
+            size,
+            Sort.by(sortDir, sortProp)
+        )
+        return eventRepo
+            .findByStatus(EventStatus.PUBLISHED, page)
+            .content
+            .map { event ->
+                val remainingTickets = ticketHoldService.calculateRemainingTickets(event.id!!)
+                GetEventResponse(
+                    event.name,
+                    event.startTime,
+                    remainingTickets,
+                    event.maxPerRequest
+                )
+            }
     }
 }

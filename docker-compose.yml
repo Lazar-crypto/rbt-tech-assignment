@@ -10,3 +10,17 @@ services:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
       POSTGRES_DB: ticket_booking_db
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+
+  mock-payment-api:
+    image: "wiremock/wiremock:3.5.2"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./wiremock/mappings:/home/wiremock/mappings
+    entrypoint: [ "/docker-entrypoint.sh", "--port=8000" ]

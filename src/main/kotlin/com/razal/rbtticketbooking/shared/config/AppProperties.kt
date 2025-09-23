@@ -6,7 +6,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 data class AppProperties(
     val jwt: Jwt = Jwt(),
     val dummyJson: DummyJson,
-    val adminUsers: List<String> = emptyList()
+    val paymentApi: PaymentApi,
+    val adminUsers: List<String> = emptyList(),
+    val ticketTtlMin: Int = 10
 ) {
     data class Jwt(
         val secret: String = "",
@@ -14,6 +16,9 @@ data class AppProperties(
         val expirationMin: Long = 0,
     )
     data class DummyJson(
+        val baseUrl: String = ""
+    )
+    data class PaymentApi(
         val baseUrl: String = ""
     )
 }
