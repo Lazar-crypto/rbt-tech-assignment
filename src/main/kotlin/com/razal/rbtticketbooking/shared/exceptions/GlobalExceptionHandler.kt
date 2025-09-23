@@ -131,4 +131,16 @@ class GlobalExceptionHandler : ResponseEntityExceptionHandler() {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body)
     }
 
+    @ExceptionHandler(PaymentException::class)
+    fun handleResourceNotFound(ex: PaymentException, webRequest: WebRequest): ResponseEntity<ErrorResponseDto> {
+        val body = ErrorResponseDto(
+            path = webRequest.getDescription(false),
+            status = HttpStatus.SERVICE_UNAVAILABLE,
+            message = ex.message,
+            timestamp = LocalDateTime.now()
+        )
+        RBT_LOGGER.warn("payment provider service error, path={} msg={}", webRequest.getDescription(false), ex.message)
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(body)
+    }
+
 }

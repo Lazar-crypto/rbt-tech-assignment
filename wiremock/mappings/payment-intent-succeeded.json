@@ -1,0 +1,11 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPathPattern": "/v1/payment_intents/will-succeed"
+  },
+  "response": {
+    "status": 200,
+    "jsonBody": { "status": "succeeded" },
+    "headers": { "Content-Type": "application/json" }
+  }
+}

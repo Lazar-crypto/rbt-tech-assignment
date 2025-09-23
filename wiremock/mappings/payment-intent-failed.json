@@ -1,0 +1,5 @@
+{
+  "priority": 1,
+  "request": { "method": "GET", "urlPath": "/v1/payment_intents/will-fail" },
+  "response": { "status": 503, "jsonBody": { "error": "provider down" } }
+}
