@@ -10,6 +10,7 @@ import com.razal.rbtticketbooking.shared.domain.EventStatus
 import com.razal.rbtticketbooking.shared.domain.Performer
 import com.razal.rbtticketbooking.shared.domain.Venue
 import com.razal.rbtticketbooking.shared.exceptions.ResourceNotFoundException
+import com.razal.rbtticketbooking.shared.service.TicketHoldService
 import jakarta.persistence.EntityManager
 import junit.framework.TestCase.assertEquals
 import org.junit.jupiter.api.BeforeEach
@@ -33,6 +34,7 @@ class EventServiceImplTest {
     private lateinit var performerRepo: PerformerRepo
     private lateinit var entityManager: EntityManager
     private lateinit var eventService: EventServiceImpl
+    private lateinit var ticketHold: TicketHoldService
 
     private val batchSize = 20
 
@@ -42,12 +44,15 @@ class EventServiceImplTest {
         venueRepo = mock()
         performerRepo = mock()
         entityManager = mock()
+        ticketHold = mock()
         eventService = EventServiceImpl(
             eventRepo = eventRepo,
             venueRepo = venueRepo,
             performerRepo = performerRepo,
             batchSize = batchSize,
-            entityManager = entityManager
+            entityManager = entityManager,
+            ticketHoldService = ticketHold
+
         )
     }
 

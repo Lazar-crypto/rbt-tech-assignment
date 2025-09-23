@@ -19,7 +19,7 @@ class SecurityConfig(
         http.csrf { it.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .authorizeHttpRequests {
-                it.requestMatchers("/auth/**", "/public/**", "/actuator/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
+                it.requestMatchers("/auth/**", "/public/**", "/actuator/**", "/docs/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
                 it.anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)

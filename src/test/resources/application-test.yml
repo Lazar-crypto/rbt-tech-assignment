@@ -33,6 +33,9 @@ app:
     expiration-min: 5
   dummy-json:
     base-url: https://dummyjson.com
+  payment-api:
+    base-url: http://localhost:8000
   admin-users:
     - testadmin
     - emilys
+  ticket-ttl-min: 10

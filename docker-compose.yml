@@ -24,3 +24,26 @@ services:
     volumes:
       - ./wiremock/mappings:/home/wiremock/mappings
     entrypoint: [ "/docker-entrypoint.sh", "--port=8000" ]
+
+  application:
+    image: "${REPOSITORY_URI}:${IMAGE_TAG}"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+      - redis
+      - mock-payment-api
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB_HOST: "${DB_HOST}"
+      DB_PORT: "${DB_PORT}"
+      DB_SCHEMA: "${DB_SCHEMA}"
+      DB_USERNAME: "${DB_USER}"
+      DB_PASSWORD: "${DB_PASS}"
+      REDIS_HOST: "${REDIS_HOST}"
+      REDIS_PORT: "${REDIS_PORT}"
+      PAYMENT_API_HOST: "${PAYMENT_API_HOST}"
+      PAYMENT_API_PORT: "${PAYMENT_API_PORT}"

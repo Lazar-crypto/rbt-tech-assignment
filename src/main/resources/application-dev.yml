@@ -1,0 +1,78 @@
+spring:
+  application:
+    name: rbt-ticket-booking
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_SCHEMA}?rewriteBatchedInserts=true
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: rbt
+        order_inserts: true
+        jdbc:
+          batch_size: 100
+    open-in-view: false
+    show-sql: true
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      repositories:
+        enabled: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    schemas: rbt
+    default-schema: rbt
+  threads:
+    virtual:
+      enabled: true
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: WARN
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes.enabled: true
+      show-details: always
+  health:
+    db:
+      enabled: true
+
+springdoc:
+  swagger-ui:
+    path: /docs
+  api-docs:
+    path: /v3/api-docs
+
+app:
+  jwt:
+    secret: UQv2bDg0Y2rX7oQe5fV9hJ3kLmNz1Pa4Rb8Sc6Td0UvWxYz2A3B5C7D9E1F3G5H7
+    issuer: rbt-ticket-booking
+    expiration-min: 60
+  dummy-json:
+    base-url: https://dummyjson.com
+  payment-api:
+    base-url: http://${PAYMENT_API_HOST}:${PAYMENT_API_PORT}
+  admin-users:
+    - emilys
+    - michaelw
+    - sophiab
+  ticket-ttl-min: 10

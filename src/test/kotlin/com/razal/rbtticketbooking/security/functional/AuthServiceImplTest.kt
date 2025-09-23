@@ -27,6 +27,7 @@ class AuthServiceImplTest {
             expirationMin = 60
         ),
         dummyJson = AppProperties.DummyJson(baseUrl = "https://dummyjson.com"),
+        paymentApi = AppProperties.PaymentApi(baseUrl = "https://payment-api.com"),
         adminUsers = listOf("emilys")
     )
     private val service = AuthServiceImpl(props, dummy, jwt, roles)
