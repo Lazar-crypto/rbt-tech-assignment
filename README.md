@@ -163,6 +163,61 @@ Authorization: Bearer <user-token>
 ```
 **Result**: Returns cached response without processing payment again
 
+## Kafka Booking Integration
+
+The system supports asynchronous ticket booking via Kafka messaging, enabling high-throughput processing of booking requests.
+
+### Kafka Setup
+
+- **Topics**: `ticket.booking.reserve` and `ticket.booking.finalize` (3 partitions each)
+- **Concurrency**: 3 consumer threads per topic (one per partition)
+
+### Async Booking Flow
+
+1. **Producer** sends reserve messages to `ticket.booking.reserve` topic
+2. **Reserve Consumer** processes messages with same logic as REST API
+3. **Auto-Producer** pushes finalize messages to `ticket.booking.finalize` topic
+4. **Finalize Consumer** completes booking with `paymentRef: "will-succeed"`
+
+### Testing Kafka Integration
+
+#### 1. Create High-Capacity Event
+```http
+POST http://localhost:8080/api/events
+Content-Type: application/json
+Authorization: Bearer <admin-token>
+
+{
+  "venueId": 3,
+  "performerId": 2,
+  "name": "Test Concert",
+  "description": "Test concert description",
+  "startTime": "2025-12-20T15:00:00+02:00",
+  "totalTickets": 10000,
+  "maxPerRequest": 5,
+  "ticketPrice": 50.00
+}
+```
+
+#### 2. Run Kafka Producer Script
+```bash
+# Simulate 500 booking requests for eventId 13
+./kafka_producer_test_ticket_hold.sh 500 13
+```
+
+**Script Details:**
+- **Users**: Round-robin between `sophiab`, `jamesd`, `emmaj`
+- **Quantities**: random 1-3 tickets per request
+- **Partitioning**: Messages distributed across 3 partitions by key
+
+#### 3. Monitor Processing
+Logs for async processing:
+```
+RESERVE IN p=0 off=123 key=k0 json={"user":"sophiab","eventId":13,"quantity":1}
+FINALIZE OUT key=sophiab json={"user":"sophiab","req":{...}}
+FINALIZE IN p=1 off=456 key=sophiab json={"user":"sophiab","req":{...}}
+```
+
 ## 📋 Requirements Compliance
 
 ✅ **Event Management**: Admin creates events with capacity limits  
@@ -170,4 +225,5 @@ Authorization: Bearer <user-token>
 ✅ **Capacity Control**: Prevents overselling, respects max-per-request  
 ✅ **Security**: JWT auth with external DummyJSON validation  
 ✅ **Public API**: Open endpoint for event listing  
-✅ **Dockerization**: Complete Docker Compose setup
+✅ **Dockerization**: Complete Docker Compose setup  
+✅ **Kafka Integration**: Async ticket booking via messaging
